@@ -888,7 +888,7 @@ footer {
           <div class="contribute-icon ci-mail">@</div>
           Send a Message
         </div>
-        <div class="email-form">
+        <!-- <div class="email-form">
           <input type="email" class="email-input" placeholder="Your email">
           <input type="text" class="email-input" placeholder="Subject">
           <textarea class="email-input" placeholder="Message…"></textarea>
@@ -896,7 +896,24 @@ footer {
                   onclick="this.textContent='Message copied — send to lucascollections31@gmail.com'; setTimeout(()=>this.textContent='Send',3000)">
             Send
           </button>
-        </div>
+        </div> -->
+        <form class="email-form" action="https://formspree.io/f/mwvyabdj" method="POST">
+
+          <input type="email" class="email-input" name="email" placeholder="Your email" required>
+
+          <input type="text" class="email-input" name="subject" placeholder="Subject">
+
+          <textarea class="email-input" name="message" placeholder="Message…"></textarea>
+<!-- 
+          <button type="submit" class="email-submit">
+            Send
+          </button> -->
+          <button type="submit" class="email-submit"
+            onclick="setTimeout(()=>this.textContent='Sent!',500)">
+            Send
+          </button>
+        </form>
+
       </div>
     </div>
   </div>
