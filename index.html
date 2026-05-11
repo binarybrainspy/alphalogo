@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaLogo, Decoding Heptapod B</title>
+<link rel="icon" type="image/png" href="C:\Users\Job Lucas\Documents\Projects\alphalogo\website\mid1.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Core palette — Arrival style */
+  --bg-main: #f4f5f7;
+  --bg-soft: #ffffff;
+  --bg-muted: #e6e8eb;
+
+  --ink: #0f1113;
+  --ink-soft: #4b4f55;
+  --ink-faint: #8a8f96;
+
+  --border: rgba(0,0,0,0.08);
+
+  /* Accent = subtle ink bleed */
+  --accent: #2a2e33;
+
+  /* Optional subtle glow (fog feeling) */
+  --fog: rgba(0,0,0,0.03);
+
+  --darker: #f4f5f7;   /* was dark */
+  --dark: #ffffff;
+  --surface: #ffffff;
+  --surface2: #e6e8eb;
+
+  --text: #111111;
+  --muted: #555555;
+
+  --border: rgba(0,0,0,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Raleway', sans-serif;
+  background: var(--bg-main);
+  color: var(--ink);
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 2px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem; font-weight: 700;
+   color: var(--ink); /* remove orange */
+  letter-spacing: 0.1em;
+}
+.nav-logo span { color: var(--orange); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  color: var(--muted); text-decoration: none;
+  font-size: 0.8rem; letter-spacing: 0.12em;
+  text-transform: uppercase; font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding: 6rem 2rem 4rem;
+
+  background-image: url('website/landing4.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+#hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.75); /* adjust 0.6–0.85 */
+}
+
+#hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(0,0,0,0.04), transparent 60%),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,0.03), transparent 70%);
+}
+
+/* Ship silhouette */
+.ship-bg {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 55%; height: 70%;
+  opacity: 0.07;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='200' cy='150' rx='180' ry='120' fill='%23705DAA'/%3E%3Cellipse cx='200' cy='150' rx='140' ry='90' fill='%23D04B6A'/%3E%3Crect x='180' y='30' width='40' height='240' fill='%23705DAA' rx='20'/%3E%3C/svg%3E") center/contain no-repeat;
+  pointer-events: none;
+}
+
+/* Fourier animation canvas */
+#fourierCanvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  text-align: center; max-width: 800px;
+}
+
+.hero-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.2em;
+  color: var(--ink-faint);text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  opacity: 0; animation: fadeUp 0.8s 0.2s ease forwards;
+}
+
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 700; line-height: 1.1;
+  margin-bottom: 1rem;
+  opacity: 0; animation: fadeUp 0.8s 0.4s ease forwards;
+}
+.hero-title .accent,
+.hero-title .accent2 {
+  color: var(--ink);
+  opacity: 0.85;
+}
+
+.hero-sub {
+  font-size: 1.05rem; font-weight: 300;
+  color: var(--muted); line-height: 1.8;
+  max-width: 560px; margin: 0 auto 2.5rem;
+  opacity: 0; animation: fadeUp 0.8s 0.6s ease forwards;
+}
+
+.hero-ctas {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 0.8s 0.8s ease forwards;
+}
+
+.btn-primary {
+  padding: 0.75rem 2rem;
+  background: var(--ink);
+  color: white;
+  border: none; 
+  border-radius: 2px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.82rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.btn-ghost {
+  padding: 0.75rem 2rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 2px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.82rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+/* Morphing logograms strip */
+.morph-strip {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 900px;
+  margin: 3rem auto 0;
+  display: flex; justify-content: center; gap: 0;
+  opacity: 0; animation: fadeUp 0.8s 1s ease forwards;
+}
+
+#morphCanvas {
+  width: 100%; max-width: 900px;
+  height: 160px; border-radius: 4px;
+  background: transparent;
+}
+
+.morph-label {
+  text-align: center; margin-top: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; color: var(--muted);
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+
+/* ── SECTIONS ── */
+section { padding: 6rem 2rem; 
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.6),
+        rgba(255,255,255,0.9)
+    );
+}
+
+.section-inner { max-width: 1100px; margin: 0 auto; }
+
+.section-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.2em;
+  color: var(--orange); text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 600; margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.section-body {
+  font-size: 1rem; font-weight: 300;
+  color: var(--muted); line-height: 1.9;
+  max-width: 680px;
+}
+
+/* ── ABOUT / ARRIVAL ── */
+#about { background: var(--bg-main); }
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem; align-items: center;
+  margin-top: 3rem;
+}
+
+.about-visual {
+  position: relative;
+}
+
+.ship-frame {
+  width: 100%; aspect-ratio: 4/3;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+
+.ship-svg-container {
+  width: 90%; height: 90%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.ship-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 60%,
+    rgba(112,93,170,0.15) 0%, transparent 70%);
+  animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.stat-pills {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  margin-top: 2rem;
+}
+.pill {
+  padding: 0.4rem 1rem;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--ink);
+  letter-spacing: 0.08em;
+}
+
+/* ── GALLERY ── */
+#gallery { background: var(--bg-main); }
+
+.gallery-controls {
+  display: flex; gap: 1rem; margin: 2rem 0;
+  flex-wrap: wrap; align-items: center;
+}
+
+.search-box {
+  padding: 0.6rem 1rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 2px; color: var(--text);
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.9rem; width: 280px;
+  outline: none;
+}
+.search-box:focus { border-color: var(--ink); }
+.search-box::placeholder { color: var(--muted); }
+
+.gallery-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--muted);
+  margin-left: auto;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.glyph-card {
+  background: var(--bg-soft);
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.75rem;
+  position: relative;
+}
+.glyph-card:hover { background: var(--var(--bg-muted)); }
+.glyph-card:hover .glyph-overlay { opacity: 1; }
+
+.glyph-img {
+  width: 90px; height: 90px;
+  object-fit: contain;  
+  filter: invert(1) sepia(1) saturate(2) hue-rotate(210deg) brightness(0.9);
+  transition: transform 0.3s;
+  background-color: #ffffff;
+}
+.glyph-card:hover .glyph-img { transform: scale(1.08);
+    /* filter: grayscale(1) contrast(1.4) brightness(0.05); */
+}
+
+.glyph-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem; color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+.glyph-meaning {
+  font-size: 0.75rem; font-weight: 500;
+  color: var(--text); text-align: center;
+  line-height: 1.3;
+}
+
+.glyph-overlay {
+  position: absolute; top: 0.5rem; right: 0.5rem;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--orange); opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* ── MODAL ── */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(10,10,20,0.92);
+  backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.modal-backdrop.open { display: flex; }
+
+.modal {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  max-width: 800px; width: 100%;
+  padding: 2.5rem;
+  position: relative;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 2.5rem; align-items: start;
+}
+
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none;
+  color: var(--muted); font-size: 1.5rem;
+  cursor: pointer; line-height: 1;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text); }
+
+.modal-img-container {
+  position: relative;
+}
+
+.modal-img-tabs {
+  display: flex; gap: 0.5rem; margin-bottom: 1rem;
+}
+.tab-btn {
+  padding: 0.3rem 0.8rem;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 2px; color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.1em;
+  cursor: pointer; transition: all 0.2s;
+}
+.tab-btn.active { border-color: var(--ink); color: var(--ink); }
+
+.modal-img {
+  width: 100%; aspect-ratio: 1;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  padding: 1rem;
+  background: rgba(255,255,255,0.03);
+}
+.modal-img.original {
+  filter: invert(1) sepia(1) saturate(2) hue-rotate(210deg) brightness(0.9);
+}
+.modal-img.wireframe {
+  filter: invert(1) sepia(1) saturate(3) hue-rotate(250deg) brightness(0.8);
+}
+
+.modal-info { padding-top: 0.5rem; }
+
+.modal-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; color: var(--orange);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.modal-meaning {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem; font-weight: 600;
+  line-height: 1.2; margin-bottom: 1.5rem;
+}
+
+.modal-divider {
+  height: 1px; background: var(--border);
+  margin: 1.5rem 0;
+}
+
+.modal-meta-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; color: var(--muted);
+  letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.modal-meta-val {
+  font-size: 0.88rem; color: var(--text);
+  line-height: 1.6; margin-bottom: 1.25rem;
+}
+
+.spectrum-bar {
+  height: 40px;
+  background: var(--bg-muted);
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex; align-items: flex-end;
+  gap: 1px; padding: 4px;
+}
+.spectrum-bar-inner {
+  display: flex; align-items: flex-end;
+  gap: 1px; width: 100%; height: 100%;
+}
+
+/* ── RESEARCH ── */
+#research {
+  background-image: url('website/Screenshot 2026-05-11 012358.png');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+#research::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.85);
+}
+
+.research > * {
+  position: relative;
+  z-index: 1;
+}
+.research-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 3rem;
+}
+
+.research-card {
+  background: var(--bg-soft);
+  padding: 2rem 1.75rem;
+}
+
+.research-num {
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem; font-weight: 700;
+  color: var(--border);
+  margin-bottom: 1rem;
+}
+.research-card:nth-child(1) .research-num { color: rgba(112,93,170,0.3); }
+.research-card:nth-child(2) .research-num { color: rgba(208,75,106,0.3); }
+.research-card:nth-child(3) .research-num { color: rgba(255,90,9,0.3); }
+
+.research-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem; font-weight: 600;
+  margin-bottom: 0.75rem; line-height: 1.3;
+}
+.research-body {
+  font-size: 0.85rem; color: var(--muted);
+  line-height: 1.8;
+}
+
+/* ── CONTRIBUTE ── */
+#contribute { background: var(--bg-main); }
+
+.contribute-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 3rem; margin-top: 3rem;
+}
+
+.contribute-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 2px; padding: 2rem;
+}
+.contribute-card-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem; font-weight: 600;
+  margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem;
+}
+.contribute-icon {
+  width: 28px; height: 28px; border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+}
+.ci-github { background: rgba(112,93,170,0.2); color: var(--ink); }
+.ci-mail   { background: rgba(208,75,106,0.2); color: var(--ink-soft); }
+.ci-code   { background: rgba(255,90,9,0.2);   color: var(--orange); }
+.ci-lang   { background: rgba(112,93,170,0.15); color: var(--ink); }
+
+.contribute-body {
+  font-size: 0.85rem; color: var(--muted);
+  line-height: 1.8; margin-bottom: 1.25rem;
+}
+
+.contribute-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--orange);
+  text-decoration: none; letter-spacing: 0.05em;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.contribute-link:hover { border-color: var(--orange); }
+
+/* Email form */
+.email-form { display: flex; flex-direction: column; gap: 0.75rem; }
+.email-input {
+  padding: 0.6rem 1rem;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 2px; color: var(--text);
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.88rem; outline: none;
+}
+.email-input:focus { border-color: var(--ink); }
+.email-input::placeholder { color: var(--muted); }
+textarea.email-input { min-height: 90px; resize: vertical; }
+.email-submit {
+  padding: 0.6rem 1.5rem;
+  background: var(--ink-soft);
+  color: #fff; border: none; border-radius: 2px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; align-self: flex-start;
+  transition: opacity 0.2s;
+}
+.email-submit:hover { opacity: 0.85; }
+
+/* ── FOOTER ── */
+footer {
+  background: #0a0a14;
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+}
+.footer-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem; font-weight: 700;
+  letter-spacing: 0.15em; color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+.footer-logo span { color: var(--orange); }
+.footer-text {
+  font-size: 0.78rem; color: var(--muted);
+  font-weight: 300; letter-spacing: 0.05em;
+}
+.footer-links {
+  display: flex; gap: 2rem; justify-content: center;
+  margin: 1.25rem 0; list-style: none;
+}
+.footer-links a {
+  color: var(--muted); text-decoration: none;
+  font-size: 0.75rem; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--ink); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .about-grid,
+  .contribute-grid { grid-template-columns: 1fr; }
+  .research-grid { grid-template-columns: 1fr; }
+  .modal { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Alpha<span>Logo</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#contribute">Contribute</a></li>
+    <li><a href="https://github.com/binarybrainspy/alphalogo" target="_blank">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <!-- <div class="ship-bg"></div> -->
+  <canvas id="fourierCanvas"></canvas>
+
+  <div class="hero-content">
+    <p class="hero-tag">AlphaLogo Project · Heptapod B · Mathematical Linguistics</p>
+    <h1 class="hero-title">
+      Decoding<br>
+      <span class="accent">Heptapod</span> <span class="accent2">B</span>
+    </h1>
+    <p class="hero-sub">
+      The first formal mathematical parameterization of the circular written
+      language from <em>Arrival</em> encoding alien logograms into a
+      navigable geometric space.
+    </p>
+    <div class="hero-ctas">
+      <a href="#gallery" class="btn-primary">Explore the Language</a>
+      <a href="https://github.com/binarybrainspy/alphalogo" target="_blank" class="btn-ghost">View Research →</a>
+    </div>
+  </div>
+
+  <div class="morph-strip">
+    <!-- <div style="width:100%">
+      <canvas id="morphCanvas"></canvas> -->
+      <p class="morph-label">49 known logograms · Fourier skeleton · Live morphing</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <p class="section-tag reveal">Context</p>
+    <h2 class="section-title reveal">A Language That Encodes Time</h2>
+    <p class="section-body reveal">
+      In Denis Villeneuve's <em>Arrival</em> (2016), a species of seven-limbed
+      heptapods communicates through circular ink glyphs, each one encoding
+      a complete sentence in a single continuous mark. Unlike linear human
+      languages, Heptapod B has no beginning and no end. Its circularity
+      reflects a non-linear perception of time: the writing of a sentence
+      implies knowledge of the whole sentence before the first mark is made.
+    </p>
+
+    <div class="about-grid">
+      <div class="about-visual reveal">
+        <img width="580" src="website\Screenshot 2026-05-11 011826.png" alt="Heptapod Ink Form">
+      </div>
+
+      <div class="reveal">
+        <p class="section-body" style="margin-bottom: 1.5rem;">
+          AlphaLogo treats each logogram as a closed parametric curve
+          in the complex plane decomposing it via Fourier analysis into
+          a compact 783-dimensional vector <strong style="color:var(--ink)">Φ(L)</strong>.
+          This encoding is invertible, translation-invariant, and machine-readable.
+        </p>
+        <p class="section-body" style="margin-bottom: 1.5rem;">
+          The analogy is the Laplace transform: just as a differential equation
+          can be solved algebraically in the <em>s</em>-domain, logograms can
+          be studied, compared, and morphed in Φ(L)-space then inverted
+          back to their original form.
+        </p>
+        <p class="section-body">
+          The work sits at the intersection of computational linguistics,
+          differential geometry, and Fourier analysis applied to a language
+          that has never before been formally described.
+        </p>
+
+        <div class="stat-pills">
+          <span class="pill">49 logograms encoded</span>
+          <span class="pill">783-dim Φ(L) space</span>
+          <span class="pill">N=64 harmonics</span>
+          <span class="pill">Track 1 complete</span>
+          <span class="pill">Open source</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="section-inner">
+    <p class="section-tag reveal">Logogram Reference</p>
+    <h2 class="section-title reveal">The 49 Known Symbols</h2>
+    <p class="section-body reveal">
+      Every logogram recorded from the film. Click any symbol to view the
+      original ink rendering alongside its skeletal Fourier reconstruction,
+      meaning, and encoding metadata.
+    </p>
+
+    <div class="gallery-controls">
+      <input type="text" class="search-box" id="searchInput"
+             placeholder="Search by meaning…" oninput="filterGallery()">
+      <span class="gallery-count" id="galleryCount">49 logograms</span>
+    </div>
+
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="section-inner">
+    <p class="section-tag reveal">AlphaLogo Method</p>
+    <h2 class="section-title reveal">How It Works</h2>
+    <p class="section-body reveal">
+      Three steps take a raw logogram PNG to a machine-readable geometric
+      fingerprint which is lossless, invertible, and ready for computational analysis.
+    </p>
+
+    <div class="research-grid">
+      <div class="research-card reveal">
+        <div class="research-num">01</div>
+        <div class="research-title">Skeleton Extraction</div>
+        <p class="research-body">
+          Each 224×224 PNG is binary-thresholded and reduced to its
+          medial axis skeleton via the Zhang-Suen algorithm. Thick brushstrokes
+          become 1-pixel centerlines of the true geometric curve beneath the ink.
+        </p>
+      </div>
+      <div class="research-card reveal">
+        <div class="research-num">02</div>
+        <div class="research-title">Complex-Plane Lift</div>
+        <p class="research-body">
+          Each skeleton curve becomes γ(t) = x(t) + i·y(t), a closed
+          complex-valued parametric curve. Its Discrete Fourier Transform
+          yields coefficients c_n of rotating circles at different frequencies
+          that together trace the logogram's shape. This is the Ptolemaic
+          epicycle representation made rigorous.
+        </p>
+      </div>
+      <div class="research-card reveal">
+        <div class="research-num">03</div>
+        <div class="research-title">The Φ(L) Encoding</div>
+        <p class="research-body">
+          Normalized Fourier coefficients are packed into a 783-dimensional
+          vector Φ(L) with translation, scale, and rotation invariant.
+          The vector is the logogram's geometric fingerprint: unique,
+          invertible, and directly usable as input to any ML pipeline.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTRIBUTE -->
+<section id="contribute">
+  <div class="section-inner">
+    <p class="section-tag reveal">Open Science</p>
+    <h2 class="section-title reveal">Join the Research</h2>
+    <p class="section-body reveal">
+      AlphaLogo is an open project. Whether you are a linguist, a
+      mathematician, a developer, or simply a fan who watched Arrival
+      and never quite recovered, there is a place for you here.
+    </p>
+
+    <div class="contribute-grid">
+      <div class="contribute-card reveal">
+        <div class="contribute-card-title">
+          <div class="contribute-icon ci-github">GH</div>
+          GitHub Repository
+        </div>
+        <p class="contribute-body">
+          Full source code, the heptapod_encode pipeline, Track 1 results,
+          and the research paper are all publicly available. Fork, star,
+          open issues, submit PRs.
+        </p>
+        <a href="https://github.com/binarybrainspy/alphalogo"
+           target="_blank" class="contribute-link">
+          https://github.com/binarybrainspy/alphalogo →
+        </a>
+      </div>
+
+      <div class="contribute-card reveal">
+        <div class="contribute-card-title">
+          <div class="contribute-icon ci-code">∿</div>
+          For Developers
+        </div>
+        <p class="contribute-body">
+          The encoding pipeline is a clean Python module. Install it,
+          run it on your own logogram dataset, extend the scoring, or
+          build new visualization tools on top of the Φ(L) matrix.
+        </p>
+        <a href="https://github.com/binarybrainspy/alphalogo#quick-start"
+           target="_blank" class="contribute-link">
+          Quick start guide →
+        </a>
+      </div>
+
+      <div class="contribute-card reveal">
+        <div class="contribute-icon ci-lang" style="margin-bottom:0.75rem; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:2px; font-size:0.75rem;">Lx</div>
+        <div class="contribute-card-title" style="margin-top:0;">
+          For Linguists
+        </div>
+        <p class="contribute-body">
+          The generated candidate logograms need grammatical validation.
+          If you work in constructed languages, semiotics, or computational
+          linguistics and want to collaborate on formalizing Heptapod B
+          grammar then reach out.
+        </p>
+        <a href="mailto:lucascollections31@gmail.com" class="contribute-link">
+          lucascollections31@gmail.com →
+        </a>
+      </div>
+
+      <div class="contribute-card reveal">
+        <div class="contribute-card-title">
+          <div class="contribute-icon ci-mail">@</div>
+          Send a Message
+        </div>
+        <div class="email-form">
+          <input type="email" class="email-input" placeholder="Your email">
+          <input type="text" class="email-input" placeholder="Subject">
+          <textarea class="email-input" placeholder="Message…"></textarea>
+          <button class="email-submit"
+                  onclick="this.textContent='Message copied — send to lucascollections31@gmail.com'; setTimeout(()=>this.textContent='Send',3000)">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Alpha<span>Logo</span></div>
+  <ul class="footer-links">
+    <li><a href="#hero">Top</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#research">Method</a></li>
+    <li><a href="https://github.com/binarybrainspy/alphalogo" target="_blank">GitHub</a></li>
+  </ul>
+  <p class="footer-text">
+    BinaryBrains · AlphaLogo Project · Open Source ·
+    Heptapod B is from <em>Arrival</em> (2016), dir. Denis Villeneuve
+  </p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-img-container">
+      <div class="modal-img-tabs">
+        <button class="tab-btn active" onclick="switchTab('original',this)">Original</button>
+        <button class="tab-btn" onclick="switchTab('wireframe',this)">Skeletal</button>
+      </div>
+      <img id="modalImg" class="modal-img original" src="" alt="">
+    </div>
+    <div class="modal-info">
+      <div class="modal-id" id="modalId"></div>
+      <div class="modal-meaning" id="modalMeaning"></div>
+      <div class="modal-divider"></div>
+      <!-- <div class="modal-meta-label">Fourier Spectrum</div>
+      <div class="spectrum-bar" id="spectrumBar">
+        <div class="spectrum-bar-inner" id="spectrumInner"></div>
+      </div> -->
+      <div class="modal-divider"></div>
+      <div class="modal-meta-label">Encoding</div>
+      <div class="modal-meta-val" id="modalEncoding"></div>
+      <div class="modal-meta-label">Φ(L) Dimension</div>
+      <div class="modal-meta-val">783 real floats · K=3 curves · N=64 harmonics</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const LOGOGRAMS = [
+  {id:'0000',meaning:'Abbot is dead'},{id:'0100',meaning:'Abbot'},{id:'0200',meaning:'Abbot chooses save humanity'},
+  {id:'0300',meaning:'Abbot chooses save Ian & Louise'},{id:'0400',meaning:'Abbot solve'},{id:'0500',meaning:'Before and After'},
+  {id:'0600',meaning:'Costello'},{id:'0700',meaning:'Earth'},{id:'0800',meaning:'Heptapod have purpose'},
+  {id:'0900',meaning:'Heptapod purpose Earth?'},{id:'1000',meaning:'Heptapod'},{id:'1100',meaning:'Heptapod is dead'},
+  {id:'1200',meaning:'Heptapod Walk'},{id:'1300',meaning:'Human?'},{id:'1400',meaning:'Human'},
+  {id:'1500',meaning:'Humanity'},{id:'1600',meaning:'Humanity is dead'},{id:'1700',meaning:'Ian'},
+  {id:'1800',meaning:'Ian is dead'},{id:'1900',meaning:'Ian & Louise'},{id:'2000',meaning:'Ian & Louise eat apple'},
+  {id:'2100',meaning:'Ian & Louise must go'},{id:'2200',meaning:'It was not Ian & Louise'},{id:'2300',meaning:'Life'},
+  {id:'2400',meaning:'Louise'},{id:'2500',meaning:'Louise have question'},{id:'2600',meaning:'Louise have Weapon'},
+  {id:'2700',meaning:'Louise is dead'},{id:'2800',meaning:'Louise Walk'},{id:'2900',meaning:'Louise writes Hepto'},
+  {id:'3000',meaning:'Message here Louise have Weapon'},{id:'3100',meaning:'Ian & Louise must learn'},{id:'3200',meaning:'Offer Weapon?'},
+  {id:'3300',meaning:'Offer Weapon'},{id:'3400',meaning:'Purpose'},{id:'3500',meaning:'Question'},
+  {id:'3600',meaning:'Send Heptapod Message'},{id:'3700',meaning:'Ship grounded'},{id:'3800',meaning:'Solve'},
+  {id:'3900',meaning:'Solve humanity now'},{id:'4000',meaning:'Not linear time'},{id:'4100',meaning:'Time'},
+  {id:'4200',meaning:'Use marker write'},{id:'4300',meaning:'Walk'},{id:'4400',meaning:'Weapon'},
+  {id:'4500',meaning:'Weapon tool duality'},{id:'4600',meaning:'Where is Abbot?'},{id:'4700',meaning:'Where is Louise?'},
+  {id:'4800',meaning:'Ian & Louise have chooses Life'}
+];
+
+let currentTab = 'original';
+
+/* ── GALLERY BUILD ── */
+function buildGallery(data) {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  data.forEach(l => {
+    const card = document.createElement('div');
+    card.className = 'glyph-card';
+    card.innerHTML = `
+      <div class="glyph-overlay"></div>
+      <img class="glyph-img" src="logograms/${l.id}.png"
+           alt="${l.meaning}" loading="lazy"
+           onerror="this.style.opacity='0.3'">
+      <div class="glyph-id">HEPT-${l.id}</div>
+      <div class="glyph-meaning">${l.meaning}</div>
+    `;
+    card.onclick = () => openModal(l);
+    grid.appendChild(card);
+  });
+  document.getElementById('galleryCount').textContent = `${data.length} logograms`;
+}
+
+function filterGallery() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = LOGOGRAMS.filter(l =>
+    l.meaning.toLowerCase().includes(q) || l.id.includes(q));
+  buildGallery(filtered);
+}
+
+buildGallery(LOGOGRAMS);
+
+/* ── MODAL ── */
+function openModal(l) {
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalId').textContent = `HEPT-${l.id} · Logogram ${parseInt(l.id)}`;
+  document.getElementById('modalMeaning').textContent = l.meaning;
+
+  const img = document.getElementById('modalImg');
+  img.src = `logograms/${l.id}.png`;
+  img.className = `modal-img ${currentTab}`;
+
+  const encodingDesc = [
+    `Source: ${l.id}.png`,
+    `Curves detected: 2–3`,
+    `Arc span: >85%`,
+    `Circularity: >0.35`,
+    `Status: encoded ✓`
+  ].join('  ·  ');
+  document.getElementById('modalEncoding').textContent = encodingDesc;
+
+  generateSpectrum(l.id);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const img = document.getElementById('modalImg');
+  img.className = `modal-img ${tab}`;
+  if (tab === 'wireframe') {
+    img.src = `logograms_wire/${document.getElementById('modalId').textContent.split('·')[0].trim().replace('HEPT-','')}.png`;
+  } else {
+    img.src = `logograms/${document.getElementById('modalId').textContent.split('·')[0].trim().replace('HEPT-','')}.png`;
+  }
+}
+
+function generateSpectrum(id) {
+  const inner = document.getElementById('spectrumInner');
+  inner.innerHTML = '';
+  const seed = parseInt(id);
+  for (let n = 0; n < 80; n++) {
+    const val = Math.max(0.03,
+      Math.exp(-Math.abs(n-1)*0.15) * 0.8 +
+      Math.sin(n*0.7+seed)*0.1 * Math.exp(-n*0.05) +
+      Math.random()*0.03);
+    const bar = document.createElement('div');
+    bar.style.cssText = `
+      flex: 1; height: ${Math.min(100,val*130)}%;
+      background: ${n < 5 ? '#705DAA' : n < 15 ? '#D04B6A' : '#393939'};
+      border-radius: 1px 1px 0 0; min-width: 2px;
+    `;
+    inner.appendChild(bar);
+  }
+}
+
+/* ── SCROLL REVEALS ── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ── FOURIER BACKGROUND ANIMATION ── */
+(function(){
+  const canvas = document.getElementById('fourierCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Pre-generate some Fourier circles
+  const circles = [
+    {r:120, speed:0.003, phase:0},
+    {r:60,  speed:0.007, phase:1.2},
+    {r:35,  speed:-0.011, phase:2.4},
+    {r:20,  speed:0.019, phase:0.8},
+    {r:12,  speed:-0.031, phase:3.1},
+  ];
+
+  const trailPoints = [];
+  const TRAIL_LEN = 800;
+
+  function tick() {
+    ctx.clearRect(0,0,W,H);
+    t += 1;
+
+    let cx = W*0.25, cy = H*0.5;
+    let px = cx, py = cy;
+
+    circles.forEach(c => {
+      const nx = px + Math.cos(t*c.speed + c.phase) * c.r * (H/600);
+      const ny = py + Math.sin(t*c.speed + c.phase) * c.r * (H/600);
+
+      ctx.beginPath();
+      ctx.arc(px, py, c.r*(H/600), 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(112,93,170,0.12)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(nx, ny);
+      ctx.strokeStyle = 'rgba(208,75,106,0.2)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      px = nx; py = ny;
+    });
+
+    trailPoints.push({x:px, y:py});
+    if (trailPoints.length > TRAIL_LEN) trailPoints.shift();
+
+    if (trailPoints.length > 2) {
+      ctx.beginPath();
+      ctx.moveTo(trailPoints[0].x, trailPoints[0].y);
+      for (let i = 1; i < trailPoints.length; i++) {
+        ctx.lineTo(trailPoints[i].x, trailPoints[i].y);
+      }
+      ctx.strokeStyle = 'rgba(255,90,9,0.35)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ── MORPHING STRIP ── */
+(function(){
+  const canvas = document.getElementById('morphCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = 900;
+  canvas.height = 160;
+
+  const N_GLYPHS = 7;
+  const COLS = ['#705DAA','#D04B6A','#FF5A09','#9490aa','#705DAA','#D04B6A','#FF5A09'];
+
+  // Generate abstract logogram-like curves
+  function makeGlyph(seed) {
+    const pts = [];
+    const n = 120;
+    for (let i = 0; i < n; i++) {
+      const t = (i/n) * Math.PI*2;
+      const r = 55 +
+        Math.sin(t*1+seed)*15 +
+        Math.sin(t*2+seed*0.7)*10 +
+        Math.sin(t*3+seed*1.3)*7 +
+        Math.cos(t*5+seed*0.5)*4 +
+        Math.cos(t*7+seed*0.9)*3;
+      pts.push({x: Math.cos(t)*r, y: Math.sin(t)*r});
+    }
+    // Add tendril-like spikes
+    const tendrils = [];
+    const nT = 3 + Math.floor(seed*2) % 4;
+    for (let k = 0; k < nT; k++) {
+      const angle = (k/nT)*Math.PI*2 + seed;
+      const len   = 20 + (seed*13+k*7)%30;
+      const width = 5 + k*2;
+      tendrils.push({angle, len, width});
+    }
+    return {pts, tendrils};
+  }
+
+  const glyphs = Array.from({length:N_GLYPHS}, (_,i) => makeGlyph(i*1.7+0.5));
+
+  let morphT = 0;
+  let srcIdx  = 0;
+
+  function lerp(a,b,t){ return a*(1-t)+b*t; }
+
+  function drawGlyph(g1, g2, alpha, cx, cy, col) {
+    const pts = g1.pts.map((p,i) => ({
+      x: lerp(p.x, g2.pts[i].x, alpha),
+      y: lerp(p.y, g2.pts[i].y, alpha),
+    }));
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // Draw curve
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) {
+      ctx.lineTo(pts[i].x, pts[i].y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Draw tendrils with color
+    const tendrilColors = ['#705DAA','#D04B6A','#FF5A09'];
+    g1.tendrils.forEach((t1, k) => {
+      const t2 = g2.tendrils[k % g2.tendrils.length];
+      const angle = lerp(t1.angle, t2.angle, alpha);
+      const len   = lerp(t1.len,   t2.len,   alpha);
+      const r     = 52;
+      const sx    = Math.cos(angle)*r;
+      const sy    = Math.sin(angle)*r;
+      const ex    = Math.cos(angle)*(r+len);
+      const ey    = Math.sin(angle)*(r+len);
+
+      ctx.beginPath();
+      ctx.moveTo(sx,sy);
+      ctx.lineTo(ex,ey);
+      // Sub-branches
+      ctx.moveTo(ex,ey);
+      ctx.lineTo(ex+Math.cos(angle+0.4)*len*0.35, ey+Math.sin(angle+0.4)*len*0.35);
+      ctx.moveTo(ex,ey);
+      ctx.lineTo(ex+Math.cos(angle-0.4)*len*0.28, ey+Math.sin(angle-0.4)*len*0.28);
+
+      ctx.strokeStyle = tendrilColors[k % 3];
+      ctx.lineWidth   = 1.2;
+      ctx.stroke();
+    });
+
+    ctx.restore();
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, 900, 160);
+
+    const SLOT_W = 900 / N_GLYPHS;
+    morphT += 0.008;
+
+    if (morphT >= 1) { morphT = 0; srcIdx = (srcIdx+1) % N_GLYPHS; }
+
+    const alpha = morphT < 0.1 ? 0 : morphT > 0.9 ? 1 :
+      (morphT-0.1)/0.8;
+
+    for (let i = 0; i < N_GLYPHS; i++) {
+      const offset = (i - srcIdx + N_GLYPHS) % N_GLYPHS;
+      const g1     = glyphs[i];
+      const g2     = glyphs[(i+1) % N_GLYPHS];
+      const a      = offset === 0 ? alpha : 0;
+      drawGlyph(g1, g2, a, SLOT_W*(i+0.5), 80, COLS[i]);
+    }
+
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ── FOURIER DEMO ── */
+(function(){
+  const canvas = document.getElementById('fourierDemo');
+  const ctx = canvas.getContext('2d');
+
+  // Generate a logogram-like curve from harmonics
+  function genCurve(N) {
+    const harmonics = [
+      {n:1, amp:80, phase:0},
+      {n:2, amp:25, phase:0.5},
+      {n:3, amp:15, phase:1.2},
+      {n:5, amp:10, phase:2.1},
+      {n:7, amp:7,  phase:0.8},
+      {n:9, amp:5,  phase:1.7},
+      {n:11,amp:4,  phase:0.3},
+      {n:13,amp:3,  phase:2.8},
+    ];
+
+    const pts = [];
+    const nPts = 300;
+    for (let i = 0; i < nPts; i++) {
+      const t = (i/nPts)*Math.PI*2;
+      let x=0, y=0;
+      harmonics.forEach(h => {
+        if (h.n <= N) {
+          x += Math.cos(h.n*t + h.phase) * h.amp;
+          y += Math.sin(h.n*t + h.phase) * h.amp;
+        }
+      });
+      pts.push({x,y});
+    }
+    return pts;
+  }
+
+  let animT = 0;
+  let N = 8;
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const cx = W*0.25, cy = H*0.5;
+
+    // Draw Fourier circles
+    const harmonics = [
+      {n:1,amp:80,phase:0},{n:2,amp:25,phase:0.5},{n:3,amp:15,phase:1.2},
+      {n:5,amp:10,phase:2.1},{n:7,amp:7,phase:0.8},{n:9,amp:5,phase:1.7},
+      {n:11,amp:4,phase:0.3},{n:13,amp:3,phase:2.8},
+    ].filter(h => h.n <= N);
+
+    let px=cx, py=cy;
+    harmonics.forEach((h,i) => {
+      const nx = px + Math.cos(h.n*animT + h.phase) * h.amp;
+      const ny = py + Math.sin(h.n*animT + h.phase) * h.amp;
+      ctx.beginPath(); ctx.arc(px,py,h.amp,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(112,93,170,${0.12+i*0.03})`;
+      ctx.lineWidth=0.7; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(nx,ny);
+      ctx.strokeStyle='rgba(208,75,106,0.5)';
+      ctx.lineWidth=1; ctx.stroke();
+      px=nx; py=ny;
+    });
+    ctx.beginPath(); ctx.arc(px,py,3,0,Math.PI*2);
+    ctx.fillStyle='#FF5A09'; ctx.fill();
+
+    // Draw full curve
+    const pts = genCurve(N);
+    ctx.beginPath();
+    pts.forEach((p,i) => {
+      const x=cx+p.x, y=cy+p.y;
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle='rgba(255,90,9,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+
+    // Show current tip trace
+    const tipX = cx + pts[Math.floor((animT/(Math.PI*2))*pts.length % pts.length)]?.x || 0;
+    const tipY = cy + pts[Math.floor((animT/(Math.PI*2))*pts.length % pts.length)]?.y || 0;
+
+    animT += 0.015;
+    if(animT > Math.PI*2) animT -= Math.PI*2;
+
+    // Right side: partial reconstruction label
+    ctx.fillStyle='rgba(148,144,170,0.6)';
+    ctx.font='12px JetBrains Mono, monospace';
+    ctx.fillText(`N = ${N} harmonics`, W*0.6, 30);
+    ctx.fillText(`${harmonics.length} rotating circles`, W*0.6, 50);
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  window.updateFourierDemo = function() {
+    N = parseInt(document.getElementById('nSlider').value);
+    document.getElementById('nVal').textContent = N;
+  };
+})();
+
+/* ── KEYBOARD ── */
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') closeModal();
+});
+</script>
+</body>
+</html>

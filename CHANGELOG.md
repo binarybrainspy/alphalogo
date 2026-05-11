@@ -60,15 +60,50 @@ First complete milestone of the AlphaLogo project. Establishes the full mathemat
 
 ---
 
-## Upcoming
+## [0.2.0] — Track 3 Complete — 2026
 
-### [0.2.0] — Track 2 — Generative Modeling
-- Variational Autoencoder trained on the (49 × 783) Φ(L) matrix
-- Sample new Φ(L) vectors from the learned distribution
-- Reconstruct candidate new logograms
-- GAN conditioned on Φ(L) for brushstroke-style rendering
+### Summary
+AlphaLogo public website shipped. All 49 logograms with meanings, live Fourier
+construction demo, morphing strip animation, and skeletal wireframe viewer.
+Track 2 (generative modeling) formally deferred with documented rationale.
 
-### [0.3.0] — Track 3 — Interactive Visualization
-- 3D sphere visualization of Φ(L) space
-- Web interface: select a logogram sentence, rotate/pan the sphere, see the projection plane determine grammatical properties
-- All 49 logograms navigable as sphere projections
+---
+
+### Added
+
+#### Website — `index.html`
+
+#### Script — `generate_wireframes.py`
+- Encodes every PNG in the logograms folder and renders its Fourier skeleton
+  reconstruction as a 512×512 brushstroke image
+- Output files named identically to inputs (000.png through 048.png) in
+  a `logograms_wire/` folder
+- Used by the website modal's "Skeletal" tab
+
+#### Documentation
+- `DEPLOY.md` — step-by-step Vercel and Netlify deployment guide
+- `README.md` updated: roadmap, project structure, Track 2 deferral rationale,
+  wireframe generation instructions
+
+---
+
+### Decisions
+
+#### Track 2 — Generative Modeling — Formally Deferred
+Attempted two approaches to generating new Heptapod B logograms:
+
+1. **Beta-VAE on Φ(L)** — trained on 49 × 783 matrix with geometry-preserving
+   augmentation to 500 samples. Generated candidates were circular but lacked
+   tendril structure. Root cause: 49 samples is insufficient for a VAE to learn
+   the structural grammar of the language, not an architecture problem.
+
+2. **Interpolation-based generator** — pairwise paths, centroid sampling, and
+   extrapolation across all logogram pairs. Produced geometrically valid candidates
+   but every output is a blend of existing symbols by definition.
+
+Decision: defer Track 2 until either (a) the remaining ~22 logograms from the
+full production vocabulary are extracted, or (b) a linguist collaborator can
+provide grammatical constraints to guide generation. See README for the full
+technical rationale and five recommended approaches.
+
+---
